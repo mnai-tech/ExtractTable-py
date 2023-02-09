@@ -120,7 +120,10 @@ class PrepareInput:
         with requests.get(url, stream=True) as r:
             r.raise_for_status()
             _, r_ext = r.headers['Content-Type'].rsplit('/', 1)
-            fname, f_ext = os.path.basename(url).rsplit('.', 1)
+            fname, f_ext = os.path.basename(
+                # >>> 'string'.split(None)[0] == 'string'
+                # True
+                url.split(kwargs.get('presigned_delimiter'))[0]).rsplit('.', 1)
             ext = r_ext if r_ext else f_ext
             ext = ext.lower()
             # TODO use filetype lib to find extension

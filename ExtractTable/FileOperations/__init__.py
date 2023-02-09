@@ -124,7 +124,7 @@ class PrepareInput:
                 # >>> 'string'.split(None)[0] == 'string'
                 # True
                 url.split(kwargs.get('presigned_delimiter'))[0]).rsplit('.', 1)
-            ext = r_ext if r_ext else f_ext
+            ext = r_ext if bool(r_ext) & ~bool(kwargs.get('presigned_delimiter')) else f_ext
             ext = ext.lower()
             # TODO use filetype lib to find extension
             tmp_fname = os.path.join(self.temp_dir, f"{fname}.{ext}")

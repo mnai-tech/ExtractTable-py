@@ -163,6 +163,8 @@ class ExtractTable:
         :param kwargs:
             max_wait_time: int, optional (default: 300);
                 Maximum Time to wait before returning to the client
+            presigned_delimiter : str, optional;
+                Delimiter indicating the start of the signature in a presigned url
             any other form-data to be sent to the server for future considerations
         :return: user requested output in list;
         """
@@ -175,7 +177,7 @@ class ExtractTable:
         # To use the reference when saving the output
         self.__setattr__('input_filename', os.path.basename(filepath))
 
-        with PrepareInput(filepath, pages=pages) as infile:
+        with PrepareInput(filepath, pages=pages, **kwargs) as infile:
             with open(infile.filepath, 'rb') as fp:
                 is_big_file = CheckFile(infile.filepath).is_big
                 if not is_big_file:

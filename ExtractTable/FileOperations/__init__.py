@@ -39,11 +39,11 @@ class PrepareInput:
     def __enter__(self):
         return self
 
-    def __init__(self, filepath: ty.Union[os.PathLike, str], pages: str):
+    def __init__(self, filepath: ty.Union[os.PathLike, str], pages: str, **kwargs):
         self.filepath = filepath
         self.temp_dir = tempfile.mkdtemp()
         if self.filepath.startswith(("http://", "https://")):
-            self.filepath = self.download_file(self.filepath)
+            self.filepath = self.download_file(self.filepath, **kwargs)
         self.pages = pages
         # Save time by using the real file,
         # if "all" pages or an image file
@@ -111,7 +111,7 @@ class PrepareInput:
 
         return set(pages_needed)
 
-    def download_file(self, url: str):
+    def download_file(self, url: str, **kwargs):
         """
         Download file to local
         :param url: PDF file path

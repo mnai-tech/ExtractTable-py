@@ -39,11 +39,11 @@ class PrepareInput:
     def __enter__(self):
         return self
 
-    def __init__(self, filepath: ty.Union[os.PathLike, str], pages: str):
+    def __init__(self, filepath: ty.Union[os.PathLike, str], pages: str, **kwargs):
         self.filepath = filepath
         self.temp_dir = tempfile.mkdtemp()
         if self.filepath.startswith(("http://", "https://")):
-            self.filepath = self.download_file(self.filepath)
+            self.filepath = self.download_file(self.filepath, **kwargs)
         self.pages = pages
         # Save time by using the real file,
         # if "all" pages or an image file
@@ -111,7 +111,7 @@ class PrepareInput:
 
         return set(pages_needed)
 
-    def download_file(self, url: str):
+    def download_file(self, url: str, **kwargs):
         """
         Download file to local
         :param url: PDF file path
@@ -120,8 +120,11 @@ class PrepareInput:
         with requests.get(url, stream=True) as r:
             r.raise_for_status()
             _, r_ext = r.headers['Content-Type'].rsplit('/', 1)
-            fname, f_ext = os.path.basename(url).rsplit('.', 1)
-            ext = r_ext if r_ext else f_ext
+            fname, f_ext = os.path.basename(
+                # >>> 'string'.split(None)[0] == 'string'
+                # True
+                url.split(kwargs.get('presigned_delimiter'))[0]).rsplit('.', 1)
+            ext = r_ext if bool(r_ext) & ~bool(kwargs.get('presigned_delimiter')) else f_ext
             ext = ext.lower()
             # TODO use filetype lib to find extension
             tmp_fname = os.path.join(self.temp_dir, f"{fname}.{ext}")

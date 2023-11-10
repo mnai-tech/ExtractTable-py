@@ -25,7 +25,8 @@ class CheckFile:
         """To check file extension"""
         if self.filepath.lower().endswith(self.__SUPPORTED_EXTENSIONS__):
             return
-        raise ClientFileTypeError(Message=f"Allowed file types are {self.__SUPPORTED_EXTENSIONS__}")
+        raise ClientFileTypeError(
+            Message=f"Allowed file types are {self.__SUPPORTED_EXTENSIONS__}")
 
     def is_big_size(self) -> bool:
         # 1027 to create some buffer
@@ -36,6 +37,7 @@ class PrepareInput:
     """
     Handle PDF work
     """
+
     def __enter__(self):
         return self
 
@@ -56,15 +58,17 @@ class PrepareInput:
 
     def pdf_separator(self, gather_pages: set):
         """PDF Splitter"""
-        merged_pdf = os.path.join(self.temp_dir, str(self.pages) + "_" + os.path.basename(self.filepath))
+        merged_pdf = os.path.join(self.temp_dir, str(
+            self.pages) + "_" + os.path.basename(self.filepath))
         with open(merged_pdf, 'wb') as out_file:
-            pdf_reader = PyPDF2.PdfFileReader(self.filepath)
+            pdf_reader = PyPDF2.PdfReader(self.filepath)
             pdf_writer = PyPDF2.PdfFileWriter()
             for page in gather_pages:
                 try:
                     pdf_writer.addPage(pdf_reader.getPage(page-1))
                 except IndexError:
-                    raise EOFError(f"File has only {pdf_reader.numPages} pages, but asked for {self.pages}")
+                    raise EOFError(
+                        f"File has only {pdf_reader.numPages} pages, but asked for {self.pages}")
             pdf_writer.write(out_file)
         return merged_pdf
 
@@ -93,18 +97,21 @@ class PrepareInput:
             page_numbers.append({"start": 1, "end": 1})
         else:
             with open(filepath, "rb") as file_obj:
-                infile = PyPDF2.PdfFileReader(file_obj, strict=False)
+                infile = PyPDF2.PdfReader(file_obj, strict=False)
                 if pages == "all":
-                    page_numbers.append({"start": 1, "end": infile.getNumPages()})
+                    page_numbers.append(
+                        {"start": 1, "end": infile.getNumPages()})
                 else:
                     for r in pages.split(","):
                         if "-" in r:
                             a, b = r.split("-")
                             if b == "end":
                                 b = infile.getNumPages()
-                            page_numbers.append({"start": int(a), "end": int(b)})
+                            page_numbers.append(
+                                {"start": int(a), "end": int(b)})
                         else:
-                            page_numbers.append({"start": int(r), "end": int(r)})
+                            page_numbers.append(
+                                {"start": int(r), "end": int(r)})
 
         for p in page_numbers:
             pages_needed.extend(range(p["start"], p["end"] + 1))
@@ -124,7 +131,8 @@ class PrepareInput:
                 # >>> 'string'.split(None)[0] == 'string'
                 # True
                 url.split(kwargs.get('presigned_delimiter'))[0]).rsplit('.', 1)
-            ext = r_ext if bool(r_ext) & ~bool(kwargs.get('presigned_delimiter')) else f_ext
+            ext = r_ext if bool(r_ext) & ~bool(
+                kwargs.get('presigned_delimiter')) else f_ext
             ext = ext.lower()
             # TODO use filetype lib to find extension
             tmp_fname = os.path.join(self.temp_dir, f"{fname}.{ext}")
